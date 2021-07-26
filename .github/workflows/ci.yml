@@ -1,0 +1,32 @@
+# ref: https://github.com/actions/starter-workflows/blob/main/ci/deno.yml
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**.ts"
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/**.ts"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        deno: ["v1.x"]
+      
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ matrix.deno }} # tests across multiple Deno versions
+
+      - name: Run linter
+        run: deno lint

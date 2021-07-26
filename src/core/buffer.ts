@@ -1,3 +1,4 @@
+// helper class treats Binary data
 export class Buffer {
   #cursor = 0;
   #buffer: ArrayBuffer;
@@ -74,6 +75,12 @@ export class Buffer {
     }
 
     return vec;
+  }
+
+  readName(): string {
+    const size = this.readU32();
+    const bytes = this.readBytes(size);
+    return new TextDecoder("utf-8").decode(bytes.buffer);
   }
 
   get byteLength(): number {
