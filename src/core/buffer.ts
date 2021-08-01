@@ -9,6 +9,14 @@ export class Buffer {
     this.#view = new DataView(buffer);
   }
 
+  get cursor(): number {
+    return this.#cursor;
+  }
+
+  protected setCursor(c: number) {
+    this.#cursor = c;
+  }
+
   // #bufferはプライベートメソッドなのでgetterを用意
   get buffer(): ArrayBuffer {
     return this.#buffer;
@@ -176,5 +184,26 @@ export class Buffer {
 
   get eof(): boolean {
     return this.byteLength <= this.#cursor;
+  }
+}
+
+// バッファをスタックとして扱えるようにしたもの
+export class StackBuffer extends Buffer {
+  // pop
+  readBytes(size: number): Uint8Array {
+    if (this.cursor - size < 0) {
+      return new Uint8Array(0);
+    }
+    const slice = this.buffer.slice(this.cursor - size, this.cursor);
+    this.setCursor(this.cursor - size);
+    return new Uint8Array(slice).reverse();
+  }
+
+  // push
+  writeBytes(bytes: ArrayBuffer) {
+    const u8s = new Uint8Array(bytes).reverse();
+    for (const byte of u8s) {
+      this.writeByte(byte);
+    }
   }
 }
